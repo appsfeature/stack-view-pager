@@ -1,0 +1,119 @@
+{
+  "project_info": {
+    "project_number": "989162537076",
+    "firebase_url": "https://gk-english.firebaseio.com",
+    "project_id": "gk-english",
+    "storage_bucket": "gk-english.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989162537076:android:2479a9f9e3def726",
+        "android_client_info": {
+          "package_name": "com.appsfeature.stackviewpager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "989162537076-eh3mlo36e9p995augi4nv15gbnq5hkll.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsfeature.stackviewpager",
+            "certificate_hash": "cf1013ce5d3f28705f6c1b72c31afc5f937235b7"
+          }
+        },
+        {
+          "client_id": "989162537076-g93eum9tsohju8h1cuv3nirct01mub8m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsfeature.stackviewpager",
+            "certificate_hash": "711269d87928441c2b54aaeebf63a858dd7c1702"
+          }
+        },
+        {
+          "client_id": "989162537076-mke1adek3s8cjstj3lssoqbmq4ok4c4g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsfeature.stackviewpager",
+            "certificate_hash": "01bfde21e3450fef9f7ace41a26377eb49336b7d"
+          }
+        },
+        {
+          "client_id": "989162537076-ps09hqhfv9a59dq6cbct8vedihcagv42.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsfeature.stackviewpager",
+            "certificate_hash": "37574b4a703728f7c46529cadfbf029fd78ebe5e"
+          }
+        },
+        {
+          "client_id": "989162537076-41vg7mb9m6v7cff1180kjbaf1bkealp9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDM_6jklv_FYkIVRNAUDan0AZS9HxDaJco"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "989162537076-be3vitsivl6q8ug7rjhu183jm327o4lu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "989162537076-aif2i2i3efq0r1gv6smormfi6bc5njco.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.suraj.GK-and-Current-Affairs-2017-English",
+                "app_store_id": "1202337464"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      },
+      "admob_app_id": "ca-app-pub-6913072320040860~3846079632"
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989162537076:android:f30f6371575a56e8",
+        "android_client_info": {
+          "package_name": "latest.mock.test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "989162537076-41vg7mb9m6v7cff1180kjbaf1bkealp9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDM_6jklv_FYkIVRNAUDan0AZS9HxDaJco"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
