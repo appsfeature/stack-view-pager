@@ -9,6 +9,9 @@ allprojects {
             url 'https://jitpack.io'
         }
     }
+    ext {
+            firebase_crashlytics_version = '2.10.0'
+    }
 }
 ```
 #### Dependency
