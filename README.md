@@ -1,4 +1,9 @@
 # Stack Viewpager 
+
+<p align="left">
+  <img src="https://raw.githubusercontent.com/appsfeature/stack-view-pager/master/screenshots/one.gif" alt="Preview 1" width="200" /> 
+</p>
+  
    
 ## Setup
 Add this to your project build.gradle
