@@ -1,6 +1,6 @@
 # Stack Viewpager 
 
-<p align="left">
+<p align="center">
   <img src="https://raw.githubusercontent.com/appsfeature/stack-view-pager/master/screenshots/one.gif" alt="Preview 1" width="200" /> 
 </p>
   
