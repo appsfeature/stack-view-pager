@@ -1,19 +1,3 @@
-/**
- * Copyright 2015 Bartosz Lipinski
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.stack.viewpager;
 
 import android.content.Context;
@@ -23,22 +7,10 @@ import android.database.DataSetObserver;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.VelocityTrackerCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewConfigurationCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v4.view.accessibility.AccessibilityRecordCompat;
-import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.FocusFinder;
@@ -52,20 +24,23 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityRecord;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.widget.EdgeEffectCompat;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-/**
- * Created by Bartosz Lipinski
- * Based on castorflex's VerticalViewPager (https://github.com/castorflex/VerticalViewPager)
- *
- * 03.05.15
- */
 public class OrientedViewPager extends ViewGroup {
 
     public enum Orientation {
@@ -117,7 +92,7 @@ public class OrientedViewPager extends ViewGroup {
         }
     };
 
-    private final ArrayList<ItemInfo> mItems = new ArrayList<ItemInfo>();
+    private final ArrayList<ItemInfo> mItems = new ArrayList<>();
     private final ItemInfo mTempItem = new ItemInfo();
 
     private final Rect mTempRect = new Rect();
@@ -243,7 +218,7 @@ public class OrientedViewPager extends ViewGroup {
      * Used internally to monitor when adapters are switched.
      */
     interface OnAdapterChangeListener {
-        public void onAdapterChanged(PagerAdapter oldAdapter, PagerAdapter newAdapter);
+        void onAdapterChanged(PagerAdapter oldAdapter, PagerAdapter newAdapter);
     }
 
     /**
@@ -272,7 +247,7 @@ public class OrientedViewPager extends ViewGroup {
         final ViewConfiguration configuration = ViewConfiguration.get(context);
         final float density = context.getResources().getDisplayMetrics().density;
 
-        mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
+        mTouchSlop = configuration.getScaledPagingTouchSlop();
         mMinimumVelocity = (int) (MIN_FLING_VELOCITY * density);
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
         mTopLeftEdge = new EdgeEffectCompat(context);
@@ -383,10 +358,12 @@ public class OrientedViewPager extends ViewGroup {
      *
      * @return The currently registered PagerAdapter
      */
+    @SuppressWarnings("unused")
     public PagerAdapter getAdapter() {
         return mAdapter;
     }
 
+    @SuppressWarnings("unused")
     void setOnAdapterChangeListener(OnAdapterChangeListener listener) {
         mAdapterChangeListener = listener;
     }
@@ -420,6 +397,7 @@ public class OrientedViewPager extends ViewGroup {
         setCurrentItemInternal(item, smoothScroll, false);
     }
 
+    @SuppressWarnings("unused")
     public int getCurrentItem() {
         return mCurItem;
     }
@@ -511,16 +489,17 @@ public class OrientedViewPager extends ViewGroup {
 
     /**
      * Set a listener that will be invoked whenever the page changes or is incrementally
-     * scrolled. See {@link android.support.v4.view.ViewPager.OnPageChangeListener}.
+     * scrolled. See {@link ViewPager.OnPageChangeListener}.
      *
      * @param listener Listener to set
      */
+    @SuppressWarnings("unused")
     public void setOnPageChangeListener(ViewPager.OnPageChangeListener listener) {
         mOnPageChangeListener = listener;
     }
 
     /**
-     * Set a {@link android.support.v4.view.ViewPager.PageTransformer} that will be called for each
+     * Set a {@link ViewPager.PageTransformer} that will be called for each
      * attached page whenever
      * the scroll position is changed. This allows the application to apply custom property
      * transformations to each page, overriding the default sliding look and feel.
@@ -534,44 +513,38 @@ public class OrientedViewPager extends ViewGroup {
      */
     public void setPageTransformer(boolean reverseDrawingOrder,
                                    ViewPager.PageTransformer transformer) {
-        if (Build.VERSION.SDK_INT >= 11) {
-            final boolean hasTransformer = transformer != null;
-            final boolean needsPopulate = hasTransformer != (mPageTransformer != null);
-            mPageTransformer = transformer;
-            setChildrenDrawingOrderEnabledCompat(hasTransformer);
-            if (hasTransformer) {
-                mDrawingOrder = reverseDrawingOrder ? DRAW_ORDER_REVERSE : DRAW_ORDER_FORWARD;
-            } else {
-                mDrawingOrder = DRAW_ORDER_DEFAULT;
-            }
-            if (needsPopulate) populate();
+        final boolean hasTransformer = transformer != null;
+        final boolean needsPopulate = hasTransformer == (mPageTransformer == null);
+        mPageTransformer = transformer;
+        setChildrenDrawingOrderEnabledCompat(hasTransformer);
+        if (hasTransformer) {
+            mDrawingOrder = reverseDrawingOrder ? DRAW_ORDER_REVERSE : DRAW_ORDER_FORWARD;
+        } else {
+            mDrawingOrder = DRAW_ORDER_DEFAULT;
         }
+        if (needsPopulate) populate();
     }
 
     void setChildrenDrawingOrderEnabledCompat(boolean enable) {
-        if (Build.VERSION.SDK_INT >= 7) {
-            if (mSetChildrenDrawingOrderEnabled == null) {
-                try {
-                    mSetChildrenDrawingOrderEnabled = ViewGroup.class.getDeclaredMethod(
-                            "setChildrenDrawingOrderEnabled", new Class[]{Boolean.TYPE});
-                } catch (NoSuchMethodException e) {
-                    Log.e(TAG, "Can't find setChildrenDrawingOrderEnabled", e);
-                }
-            }
+        if (mSetChildrenDrawingOrderEnabled == null) {
             try {
-                mSetChildrenDrawingOrderEnabled.invoke(this, enable);
-            } catch (Exception e) {
-                Log.e(TAG, "Error changing children drawing order", e);
+                mSetChildrenDrawingOrderEnabled = ViewGroup.class.getDeclaredMethod(
+                        "setChildrenDrawingOrderEnabled", Boolean.TYPE);
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Can't find setChildrenDrawingOrderEnabled", e);
             }
+        }
+        try {
+            mSetChildrenDrawingOrderEnabled.invoke(this, enable);
+        } catch (Exception e) {
+            Log.e(TAG, "Error changing children drawing order", e);
         }
     }
 
     @Override
     protected int getChildDrawingOrder(int childCount, int i) {
         final int index = mDrawingOrder == DRAW_ORDER_REVERSE ? childCount - 1 - i : i;
-        final int result =
-                ((LayoutParams) mDrawingOrderedChildren.get(index).getLayoutParams()).childIndex;
-        return result;
+        return ((LayoutParams) mDrawingOrderedChildren.get(index).getLayoutParams()).childIndex;
     }
 
     /**
@@ -580,6 +553,7 @@ public class OrientedViewPager extends ViewGroup {
      * @param listener Listener to set
      * @return The old listener that was set, if any.
      */
+    @SuppressWarnings("unused")
     ViewPager.OnPageChangeListener setInternalPageChangeListener(
             ViewPager.OnPageChangeListener listener) {
         ViewPager.OnPageChangeListener oldListener = mInternalPageChangeListener;
@@ -594,6 +568,7 @@ public class OrientedViewPager extends ViewGroup {
      * @return How many pages will be kept offscreen on either side
      * @see #setOffscreenPageLimit(int)
      */
+    @SuppressWarnings("unused")
     public int getOffscreenPageLimit() {
         return mOffscreenPageLimit;
     }
@@ -635,6 +610,7 @@ public class OrientedViewPager extends ViewGroup {
      * @see #setPageMarginDrawable(Drawable)
      * @see #setPageMarginDrawable(int)
      */
+    @SuppressWarnings("unused")
     public void setPageMargin(int marginPixels) {
         final int oldMargin = mPageMargin;
         mPageMargin = marginPixels;
@@ -650,6 +626,7 @@ public class OrientedViewPager extends ViewGroup {
      *
      * @return The size of the margin in pixels
      */
+    @SuppressWarnings("unused")
     public int getPageMargin() {
         return mPageMargin;
     }
@@ -671,12 +648,13 @@ public class OrientedViewPager extends ViewGroup {
      *
      * @param resId Resource ID of a drawable to display between pages
      */
+    @SuppressWarnings("unused")
     public void setPageMarginDrawable(int resId) {
         setPageMarginDrawable(getContext().getResources().getDrawable(resId));
     }
 
     @Override
-    protected boolean verifyDrawable(Drawable who) {
+    protected boolean verifyDrawable(@NonNull Drawable who) {
         return super.verifyDrawable(who) || who == mMarginDrawable;
     }
 
@@ -705,6 +683,7 @@ public class OrientedViewPager extends ViewGroup {
      * @param x the number of pixels to scroll by on the X axis
      * @param y the number of pixels to scroll by on the Y axis
      */
+    @SuppressWarnings("unused")
     void smoothScrollTo(int x, int y) {
         smoothScrollTo(x, y, 0);
     }
@@ -933,7 +912,7 @@ public class OrientedViewPager extends ViewGroup {
                         mAdapter.destroyItem(this, pos, ii.object);
                         if (DEBUG) {
                             Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
-                                    " view: " + ((View) ii.object));
+                                    " view: " + ii.object);
                         }
                         itemIndex--;
                         curIndex--;
@@ -967,7 +946,7 @@ public class OrientedViewPager extends ViewGroup {
                             mAdapter.destroyItem(this, pos, ii.object);
                             if (DEBUG) {
                                 Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
-                                        " view: " + ((View) ii.object));
+                                        " view: " + ii.object);
                             }
                             ii = itemIndex < mItems.size() ? mItems.get(itemIndex) : null;
                         }
@@ -1053,7 +1032,7 @@ public class OrientedViewPager extends ViewGroup {
     private void sortChildDrawingOrder() {
         if (mDrawingOrder != DRAW_ORDER_DEFAULT) {
             if (mDrawingOrderedChildren == null) {
-                mDrawingOrderedChildren = new ArrayList<View>();
+                mDrawingOrderedChildren = new ArrayList<>();
             } else {
                 mDrawingOrderedChildren.clear();
             }
@@ -1076,7 +1055,7 @@ public class OrientedViewPager extends ViewGroup {
             // Base offsets off of oldCurInfo.
             if (oldCurPosition < curItem.position) {
                 int itemIndex = 0;
-                ItemInfo ii = null;
+                ItemInfo ii;
                 float offset = oldCurInfo.offset + oldCurInfo.sizeFactor + marginOffset;
                 for (int pos = oldCurPosition + 1;
                      pos <= curItem.position && itemIndex < mItems.size(); pos++) {
@@ -1096,7 +1075,7 @@ public class OrientedViewPager extends ViewGroup {
                 }
             } else if (oldCurPosition > curItem.position) {
                 int itemIndex = mItems.size() - 1;
-                ItemInfo ii = null;
+                ItemInfo ii;
                 float offset = oldCurInfo.offset;
                 for (int pos = oldCurPosition - 1;
                      pos >= curItem.position && itemIndex >= 0; pos--) {
@@ -1163,7 +1142,7 @@ public class OrientedViewPager extends ViewGroup {
         Parcelable adapterState;
         ClassLoader loader;
 
-        public ViewPagerSavedState(Parcelable superState) {
+        ViewPagerSavedState(Parcelable superState) {
             super(superState);
         }
 
@@ -1175,6 +1154,7 @@ public class OrientedViewPager extends ViewGroup {
         }
 
         @Override
+        @NonNull
         public String toString() {
             return "FragmentPager.SavedState{"
                     + Integer.toHexString(System.identityHashCode(this))
@@ -1244,7 +1224,7 @@ public class OrientedViewPager extends ViewGroup {
         final LayoutParams lp = (LayoutParams) params;
         lp.isDecor |= child instanceof Decor;
         if (mInLayout) {
-            if (lp != null && lp.isDecor) {
+            if (lp.isDecor) {
                 throw new IllegalStateException("Cannot add pager decor view during layout");
             }
             lp.needsMeasure = true;
@@ -1363,13 +1343,13 @@ public class OrientedViewPager extends ViewGroup {
                     int heightSize = childHeightSize;
                     if (lp.width != LayoutParams.WRAP_CONTENT) {
                         widthMode = MeasureSpec.EXACTLY;
-                        if (lp.width != LayoutParams.FILL_PARENT) {
+                        if (lp.width != LayoutParams.MATCH_PARENT) {
                             widthSize = lp.width;
                         }
                     }
                     if (lp.height != LayoutParams.WRAP_CONTENT) {
                         heightMode = MeasureSpec.EXACTLY;
-                        if (lp.height != LayoutParams.FILL_PARENT) {
+                        if (lp.height != LayoutParams.MATCH_PARENT) {
                             heightSize = lp.height;
                         }
                     }
@@ -1587,7 +1567,7 @@ public class OrientedViewPager extends ViewGroup {
                             // Do it now that we know what we're working with.
                             lp.needsMeasure = false;
                             final int widthSpec = MeasureSpec.makeMeasureSpec(
-                                    (int) (width - paddingLeft - paddingRight),
+                                    width - paddingLeft - paddingRight,
                                     MeasureSpec.EXACTLY);
                             final int heightSpec = MeasureSpec.makeMeasureSpec(
                                     (int) (childSize * lp.heightFactor),
@@ -1605,7 +1585,7 @@ public class OrientedViewPager extends ViewGroup {
                                     (int) (childSize * lp.widthFactor),
                                     MeasureSpec.EXACTLY);
                             final int heightSpec = MeasureSpec.makeMeasureSpec(
-                                    (int) (height - paddingTop - paddingBottom),
+                                    height - paddingTop - paddingBottom,
                                     MeasureSpec.EXACTLY);
                             child.measure(widthSpec, heightSpec);
                         }
@@ -1850,8 +1830,8 @@ public class OrientedViewPager extends ViewGroup {
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final int layerType = enable ?
-                    ViewCompat.LAYER_TYPE_HARDWARE : ViewCompat.LAYER_TYPE_NONE;
-            ViewCompat.setLayerType(getChildAt(i), layerType, null);
+                    View.LAYER_TYPE_HARDWARE : View.LAYER_TYPE_NONE;
+            getChildAt(i).setLayerType(layerType, null);
         }
     }
 
@@ -1863,7 +1843,7 @@ public class OrientedViewPager extends ViewGroup {
          * scrolling there.
          */
 
-        final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
+        final int action = ev.getAction() & MotionEvent.ACTION_MASK;
 
         // Always take care of the touch gesture being complete.
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
@@ -1909,12 +1889,12 @@ public class OrientedViewPager extends ViewGroup {
                     break;
                 }
 
-                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
+                final int pointerIndex = ev.findPointerIndex(activePointerId);
                 if (mOrientation == Orientation.VERTICAL) {
-                    final float y = MotionEventCompat.getY(ev, pointerIndex);
+                    final float y = ev.getY(pointerIndex);
                     final float dy = y - mLastMotionY;
                     final float yDiff = Math.abs(dy);
-                    final float x = MotionEventCompat.getX(ev, pointerIndex);
+                    final float x = ev.getX(pointerIndex);
                     final float xDiff = Math.abs(x - mInitialMotionX);
                     if (DEBUG) {
                         Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
@@ -1952,10 +1932,10 @@ public class OrientedViewPager extends ViewGroup {
                         }
                     }
                 } else {
-                    final float x = MotionEventCompat.getX(ev, pointerIndex);
+                    final float x = ev.getX(pointerIndex);
                     final float dx = x - mLastMotionX;
                     final float xDiff = Math.abs(dx);
-                    final float y = MotionEventCompat.getY(ev, pointerIndex);
+                    final float y = ev.getY(pointerIndex);
                     final float yDiff = Math.abs(y - mInitialMotionY);
                     if (DEBUG) {
                         Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
@@ -2003,7 +1983,7 @@ public class OrientedViewPager extends ViewGroup {
                  */
                 mLastMotionX = mInitialMotionX = ev.getX();
                 mLastMotionY = mInitialMotionY = ev.getY();
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId(0);
                 mIsUnableToDrag = false;
 
                 mScroller.computeScrollOffset();
@@ -2045,7 +2025,7 @@ public class OrientedViewPager extends ViewGroup {
                 break;
             }
 
-            case MotionEventCompat.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
                 break;
         }
@@ -2090,7 +2070,7 @@ public class OrientedViewPager extends ViewGroup {
         final int action = ev.getAction();
         boolean needsInvalidate = false;
 
-        switch (action & MotionEventCompat.ACTION_MASK) {
+        switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
                 mScroller.abortAnimation();
                 mPopulatePending = false;
@@ -2099,15 +2079,15 @@ public class OrientedViewPager extends ViewGroup {
                 // Remember where the motion event started
                 mLastMotionX = mInitialMotionX = ev.getX();
                 mLastMotionY = mInitialMotionY = ev.getY();
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId( 0);
                 break;
             }
             case MotionEvent.ACTION_MOVE:
                 if (!mIsBeingDragged) {
-                    final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                    final float y = MotionEventCompat.getY(ev, pointerIndex);
+                    final int pointerIndex = ev.findPointerIndex( mActivePointerId);
+                    final float y = ev.getY( pointerIndex);
                     final float yDiff = Math.abs(y - mLastMotionY);
-                    final float x = MotionEventCompat.getX(ev, pointerIndex);
+                    final float x = ev.getX( pointerIndex);
                     final float xDiff = Math.abs(x - mLastMotionX);
                     if (DEBUG) {
                         Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
@@ -2151,13 +2131,13 @@ public class OrientedViewPager extends ViewGroup {
                 // Not else! Note that mIsBeingDragged can be set above.
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
-                    final int activePointerIndex = MotionEventCompat.findPointerIndex(
-                            ev, mActivePointerId);
+                    final int activePointerIndex = ev.findPointerIndex(
+                            mActivePointerId);
                     if (mOrientation == Orientation.VERTICAL) {
-                        final float y = MotionEventCompat.getY(ev, activePointerIndex);
+                        final float y = ev.getY( activePointerIndex);
                         needsInvalidate |= performDrag(y);
                     } else {
-                        final float x = MotionEventCompat.getX(ev, activePointerIndex);
+                        final float x = ev.getX( activePointerIndex);
                         needsInvalidate |= performDrag(x);
                     }
                 }
@@ -2171,8 +2151,7 @@ public class OrientedViewPager extends ViewGroup {
                     if (mOrientation == Orientation.VERTICAL) {
                         final VelocityTracker velocityTracker = mVelocityTracker;
                         velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                        initialVelocity = (int) VelocityTrackerCompat.getYVelocity(
-                                velocityTracker, mActivePointerId);
+                        initialVelocity = (int) velocityTracker.getYVelocity(mActivePointerId);
                         mPopulatePending = true;
                         final int height = getClientSize();
                         final int scrollY = getScrollY();
@@ -2180,14 +2159,13 @@ public class OrientedViewPager extends ViewGroup {
                         currentPage = ii.position;
                         pageOffset = (((float) scrollY / height) - ii.offset) / ii.sizeFactor;
                         final int activePointerIndex =
-                                MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                        final float y = MotionEventCompat.getY(ev, activePointerIndex);
+                                ev.findPointerIndex(mActivePointerId);
+                        final float y = ev.getY(activePointerIndex);
                         totalDelta = (int) (y - mInitialMotionY);
                     } else {
                         final VelocityTracker velocityTracker = mVelocityTracker;
                         velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                        initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
-                                velocityTracker, mActivePointerId);
+                        initialVelocity = (int) velocityTracker.getXVelocity(mActivePointerId);
                         mPopulatePending = true;
                         final int width = getClientSize();
                         final int scrollX = getScrollX();
@@ -2195,8 +2173,8 @@ public class OrientedViewPager extends ViewGroup {
                         currentPage = ii.position;
                         pageOffset = (((float) scrollX / width) - ii.offset) / ii.sizeFactor;
                         final int activePointerIndex =
-                                MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                        final float x = MotionEventCompat.getX(ev, activePointerIndex);
+                                ev.findPointerIndex( mActivePointerId);
+                        final float x = ev.getX( activePointerIndex);
                         totalDelta = (int) (x - mInitialMotionX);
                     }
                     int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity,
@@ -2216,28 +2194,26 @@ public class OrientedViewPager extends ViewGroup {
                     needsInvalidate = mTopLeftEdge.onRelease() | mRightBottomEdge.onRelease();
                 }
                 break;
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
+            case MotionEvent.ACTION_POINTER_DOWN: {
                 int index;
                 if (mOrientation == Orientation.VERTICAL) {
-                    index = MotionEventCompat.getActionIndex(ev);
-                    final float y = MotionEventCompat.getY(ev, index);
+                    index = ev.getActionIndex();
+                    final float y = ev.getY(index);
                     mLastMotionY = y;
                 } else {
-                    index = MotionEventCompat.getActionIndex(ev);
-                    final float x = MotionEventCompat.getX(ev, index);
+                    index = ev.getActionIndex();
+                    final float x = ev.getX(index);
                     mLastMotionX = x;
                 }
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
+                mActivePointerId = ev.getPointerId(index);
                 break;
             }
-            case MotionEventCompat.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
                 if (mOrientation == Orientation.VERTICAL) {
-                    mLastMotionY = MotionEventCompat.getY(ev,
-                            MotionEventCompat.findPointerIndex(ev, mActivePointerId));
+                    mLastMotionY = ev.getY(ev.findPointerIndex(mActivePointerId));
                 } else {
-                    mLastMotionX = MotionEventCompat.getX(ev,
-                            MotionEventCompat.findPointerIndex(ev, mActivePointerId));
+                    mLastMotionX = ev.getX(ev.findPointerIndex(mActivePointerId));
                 }
                 break;
         }
@@ -2420,9 +2396,9 @@ public class OrientedViewPager extends ViewGroup {
         super.draw(canvas);
         boolean needsInvalidate = false;
 
-        final int overScrollMode = ViewCompat.getOverScrollMode(this);
-        if (overScrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
-                (overScrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS &&
+        final int overScrollMode = getOverScrollMode();
+        if (overScrollMode == View.OVER_SCROLL_ALWAYS ||
+                (overScrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS &&
                         mAdapter != null && mAdapter.getCount() > 1)) {
             if (mOrientation == Orientation.VERTICAL) {
                 if (!mTopLeftEdge.isFinished()) {
@@ -2579,6 +2555,7 @@ public class OrientedViewPager extends ViewGroup {
      * @see #fakeDragBy(float)
      * @see #endFakeDrag()
      */
+    @SuppressWarnings("unused")
     public boolean beginFakeDrag() {
         if (mIsBeingDragged) {
             return false;
@@ -2609,6 +2586,7 @@ public class OrientedViewPager extends ViewGroup {
      * @see #beginFakeDrag()
      * @see #fakeDragBy(float)
      */
+    @SuppressWarnings("unused")
     public void endFakeDrag() {
         if (!mFakeDragging) {
             throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
@@ -2617,8 +2595,7 @@ public class OrientedViewPager extends ViewGroup {
         final VelocityTracker velocityTracker = mVelocityTracker;
         velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
         if (mOrientation == Orientation.VERTICAL) {
-            int initialVelocity = (int) VelocityTrackerCompat.getYVelocity(
-                    velocityTracker, mActivePointerId);
+            int initialVelocity = (int) velocityTracker.getYVelocity(mActivePointerId);
             mPopulatePending = true;
             final int size = getClientSize();
             final int scrollY = getScrollY();
@@ -2631,8 +2608,7 @@ public class OrientedViewPager extends ViewGroup {
                     totalDelta);
             setCurrentItemInternal(nextPage, true, true, initialVelocity);
         } else {
-            int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
-                    velocityTracker, mActivePointerId);
+            int initialVelocity = (int) velocityTracker.getXVelocity(mActivePointerId);
             mPopulatePending = true;
             final int size = getClientSize();
             final int scrollX = getScrollX();
@@ -2656,6 +2632,7 @@ public class OrientedViewPager extends ViewGroup {
      * @see #beginFakeDrag()
      * @see #endFakeDrag()
      */
+    @SuppressWarnings("unused")
     public void fakeDragBy(float offset) {
         if (!mFakeDragging) {
             throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
@@ -2742,23 +2719,24 @@ public class OrientedViewPager extends ViewGroup {
      * @see #fakeDragBy(float)
      * @see #endFakeDrag()
      */
+    @SuppressWarnings("unused")
     public boolean isFakeDragging() {
         return mFakeDragging;
     }
 
     private void onSecondaryPointerUp(MotionEvent ev) {
-        final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-        final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
+        final int pointerIndex = ev.getActionIndex();
+        final int pointerId = ev.getPointerId(pointerIndex);
         if (pointerId == mActivePointerId) {
             // This was our active pointer going up. Choose a new
             // active pointer and adjust accordingly.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
             if (mOrientation == Orientation.VERTICAL) {
-                mLastMotionY = MotionEventCompat.getY(ev, newPointerIndex);
+                mLastMotionY = ev.getY(newPointerIndex);
             } else {
-                mLastMotionX = MotionEventCompat.getX(ev, newPointerIndex);
+                mLastMotionX = ev.getX(newPointerIndex);
             }
-            mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
+            mActivePointerId = ev.getPointerId(newPointerIndex);
             if (mVelocityTracker != null) {
                 mVelocityTracker.clear();
             }
@@ -2846,7 +2824,7 @@ public class OrientedViewPager extends ViewGroup {
             }
         }
 
-        return checkV && ViewCompat.canScrollVertically(v, -delta);
+        return checkV && v.canScrollVertically(-delta);
     }
 
     @Override
@@ -2874,14 +2852,12 @@ public class OrientedViewPager extends ViewGroup {
                     handled = arrowScroll(FOCUS_RIGHT);
                     break;
                 case KeyEvent.KEYCODE_TAB:
-                    if (Build.VERSION.SDK_INT >= 11) {
-                        // The focus finder had a bug handling FOCUS_FORWARD and FOCUS_BACKWARD
-                        // before Android 3.0. Ignore the tab key on those devices.
-                        if (event.hasNoModifiers()) {
-                            handled = arrowScroll(FOCUS_FORWARD);
-                        } else if (event.hasModifiers(KeyEvent.META_SHIFT_ON)) {
-                            handled = arrowScroll(FOCUS_BACKWARD);
-                        }
+                    // The focus finder had a bug handling FOCUS_FORWARD and FOCUS_BACKWARD
+                    // before Android 3.0. Ignore the tab key on those devices.
+                    if (event.hasNoModifiers()) {
+                        handled = arrowScroll(FOCUS_FORWARD);
+                    } else if (event.hasModifiers(KeyEvent.META_SHIFT_ON)) {
+                        handled = arrowScroll(FOCUS_BACKWARD);
                     }
                     break;
             }
@@ -3116,7 +3092,7 @@ public class OrientedViewPager extends ViewGroup {
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
         // Dispatch scroll events from this ViewPager.
-        if (event.getEventType() == AccessibilityEventCompat.TYPE_VIEW_SCROLLED) {
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
             return super.dispatchPopulateAccessibilityEvent(event);
         }
 
@@ -3162,9 +3138,9 @@ public class OrientedViewPager extends ViewGroup {
         public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(host, event);
             event.setClassName(ViewPager.class.getName());
-            final AccessibilityRecordCompat recordCompat = AccessibilityRecordCompat.obtain();
+            final AccessibilityRecord recordCompat = AccessibilityRecord.obtain();
             recordCompat.setScrollable(canScroll());
-            if (event.getEventType() == AccessibilityEventCompat.TYPE_VIEW_SCROLLED
+            if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED
                     && mAdapter != null) {
                 recordCompat.setItemCount(mAdapter.getCount());
                 recordCompat.setFromIndex(mCurItem);
@@ -3282,7 +3258,7 @@ public class OrientedViewPager extends ViewGroup {
         int childIndex;
 
         public LayoutParams() {
-            super(FILL_PARENT, FILL_PARENT);
+            super(MATCH_PARENT, MATCH_PARENT);
         }
 
         public LayoutParams(Context context, AttributeSet attrs) {
@@ -3324,7 +3300,7 @@ public class OrientedViewPager extends ViewGroup {
          * @param loader The ClassLoader that this object is being created in.
          * @return Returns a new instance of the Parcelable class.
          */
-        public T createFromParcel(Parcel in, ClassLoader loader);
+        T createFromParcel(Parcel in, ClassLoader loader);
 
         /**
          * Create a new array of the Parcelable class.
@@ -3333,7 +3309,7 @@ public class OrientedViewPager extends ViewGroup {
          * @return Returns an array of the Parcelable class, with every entry
          * initialized to null.
          */
-        public T[] newArray(int size);
+        T[] newArray(int size);
     }
 
     /**
@@ -3350,10 +3326,7 @@ public class OrientedViewPager extends ViewGroup {
          */
         public static <T> Parcelable.Creator<T> newCreator(
                 OrientedViewPager.ParcelableCompatCreatorCallbacks<T> callbacks) {
-            if (android.os.Build.VERSION.SDK_INT >= 13) {
-                return ParcelableCompatCreatorHoneycombMR2Stub.instantiate(callbacks);
-            }
-            return new CompatCreator<T>(callbacks);
+            return ParcelableCompatCreatorHoneycombMR2Stub.instantiate(callbacks);
         }
 
         public static class CompatCreator<T> implements Parcelable.Creator<T> {

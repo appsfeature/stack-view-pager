@@ -1,9 +1,9 @@
 package com.stack.viewpager.adapter;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class StackFragmentAdapter extends FragmentStatePagerAdapter {
     private int itemPosition = PagerAdapter.POSITION_UNCHANGED;
 
     public StackFragmentAdapter(FragmentManager fm, List<Fragment> fragments) {
-        super(fm);
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.fragments = fragments;
     }
 
