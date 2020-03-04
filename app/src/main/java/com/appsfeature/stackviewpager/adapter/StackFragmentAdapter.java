@@ -1,4 +1,4 @@
-package com.stack.viewpager.adapter;
+package com.appsfeature.stackviewpager.adapter;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;

@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.appsfeature.stackviewpager.fragment.CardFragment;
 import com.stack.viewpager.OrientedViewPager;
-import com.stack.viewpager.adapter.StackFragmentAdapter;
+import com.appsfeature.stackviewpager.adapter.StackFragmentAdapter;
 import com.stack.viewpager.transformer.VerticalStackTransformer;
 
 import java.util.ArrayList;

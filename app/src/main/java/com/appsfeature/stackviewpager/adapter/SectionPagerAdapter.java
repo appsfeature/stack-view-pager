@@ -1,4 +1,4 @@
-package com.stack.viewpager.adapter;
+package com.appsfeature.stackviewpager.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
