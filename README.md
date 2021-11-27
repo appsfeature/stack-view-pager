@@ -15,7 +15,7 @@ allprojects {
         }
     }
     ext {
-            firebase_crashlytics_version = '2.10.0'
+        viewpager = '1.0.0'
     }
 }
 ```
